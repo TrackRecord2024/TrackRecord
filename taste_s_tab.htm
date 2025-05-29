@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notas de Cata de Vinos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f0;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #504030;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group.inline-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-group.inline-group label {
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #605040;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        
+        input[type="number"] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        fieldset {
+            border: 1px solid #d0c0b0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        legend {
+            font-weight: bold;
+            color: #504030;
+            padding: 0 10px;
+            font-size: 1.2em;
+        }
+
+        .icon {
+            font-size: 1.5em;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        button {
+            background-color: #706050;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #504030;
+        }
+
+        #jsonDataOutput {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', Courier, monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        /* Tab Styles */
+        .tab-nav {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #d0c0b0;
+        }
+        .tab-button {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-size: 1em;
+            font-weight: bold;
+            color: #605040;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .tab-button.active {
+            background-color: #d0c0b0;
+            color: #504030;
+            border-bottom: 2px solid #706050; /* Highlight active tab */
+        }
+        .tab-button:not(.active):hover {
+            background-color: #e0d0c0;
+        }
+        .tab-pane {
+            display: none; /* Hide all panes by default */
+        }
+        .tab-pane.active {
+            display: block; /* Show active pane */
+        }
+
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .tab-nav {
+                flex-direction: column; /* Stack tabs vertically on small screens */
+            }
+            .tab-button {
+                width: 100%;
+                text-align: left;
+                margin-bottom: 2px;
+                border-radius: 4px;
+            }
+            .tab-button.active {
+                 border-bottom: 2px solid #706050;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Notas de Cata de Vinos</h1>
+
+        <form id="wineTastingForm">
+            <fieldset>
+                <legend>Detalles Generales</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="tastingDate">Fecha de Cata:</label>
+                        <input type="date" id="tastingDate" name="tastingDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Lugar:</label>
+                        <input type="text" id="location" name="location" placeholder="Ej: Bodega X, Casa">
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label for="tastingPartners">Compañero(s) de Cata:</label>
+                    <input type="text" id="tastingPartners" name="tastingPartners" placeholder="Ej: Juan Pérez, Solo">
+                </div>
+                <div class="form-group full-width">
+                    <label for="wineName">Nombre del Vino:</label>
+                    <input type="text" id="wineName" name="wineName" required>
+                </div>
+                <div class="form-group full-width">
+                    <label for="producer">Productor:</label>
+                    <input type="text" id="producer" name="producer">
+                </div>
+                <div class="form-group full-width">
+                    <label for="regionAppellation">Región/Denominación:</label>
+                    <input type="text" id="regionAppellation" name="regionAppellation">
+                </div>
+                <div class="form-group full-width">
+                    <label for="grapeVarieties">Variedades de Uva:</label>
+                    <input type="text" id="grapeVarieties" name="grapeVarieties" placeholder="Ej: Malbec, Cabernet Sauvignon">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="vintage">Añada:</label>
+                        <input type="number" id="vintage" name="vintage" placeholder="AAAA" min="1800" max="2100">
+                    </div>
+                    <div class="form-group">
+                        <label for="alcohol">Alcohol (%):</label>
+                        <input type="text" id="alcohol" name="alcohol" placeholder="ej., 13.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Precio:</label>
+                        <input type="text" id="price" name="price" placeholder="ej., 25.99">
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button type="button" class="tab-button active" data-tab="sight"><span class="icon">👁️</span> Vista</button>
+                <button type="button" class="tab-button" data-tab="nose"><span class="icon">👃</span> Nariz</button>
+                <button type="button" class="tab-button" data-tab="palate"><span class="icon">👄</span> Boca</button>
+                <button type="button" class="tab-button" data-tab="finish">Final</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <div id="sight" class="tab-pane active">
+                    <fieldset>
+                        <legend>Evaluación Visual</legend>
+                        <div class="form-group">
+                            <label for="colorDepth">Intensidad del Color:</label>
+                            <select id="colorDepth" name="colorDepth">
+                                <option value="">Seleccionar Intensidad...</option>
+                                <option value="watery">Muy Pálido</option>
+                                <option value="pale">Pálido</option>
+                                <option value="medium">Medio</option>
+                                <option value="deep">Intenso</option>
+                                <option value="dark">Muy Intenso / Oscuro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="wineType">Tipo de Vino (para Tonalidad):</label>
+                            <select id="wineType" name="wineType">
+                                <option value="">Seleccionar Tipo...</option>
+                                <option value="white">Blanco</option>
+                                <option value="red">Tinto</option>
+                                <option value="rose">Rosado</option>
+                            </select>
+                        </div>
+                        <div id="colorHueWhiteGroup" class="form-group hidden">
+                            <label for="colorHueWhite">Tonalidad del Color (Blanco):</label>
+                            <select id="colorHueWhite" name="colorHueWhite">
+                                <option value="">Seleccionar Tonalidad...</option>
+                                <option value="greenish">Verdoso</option>
+                                <option value="yellow">Amarillo</option>
+                                <option value="straw yellow">Amarillo Pajizo</option>
+                                <option value="gold">Dorado</option>
+                                <option value="amber">Ámbar</option>
+                            </select>
+                        </div>
+                        <div id="colorHueRedGroup" class="form-group hidden">
+                            <label for="colorHueRed">Tonalidad del Color (Tinto):</label>
+                            <select id="colorHueRed" name="colorHueRed">
+                                <option value="">Seleccionar Tonalidad...</option>
+                                <option value="purplish">Violáceo</option>
+                                <option value="ruby">Rubí</option>
+                                <option value="red">Rojo</option>
+                                <option value="garnet">Granate</option>
+                                <option value="brick">Teja</option>
+                                <option value="brown">Marrón</option>
+                            </select>
+                        </div>
+                        <div id="colorHueRoseGroup" class="form-group hidden">
+                            <label for="colorHueRose">Tonalidad del Color (Rosado):</label>
+                            <select id="colorHueRose" name="colorHueRose">
+                                <option value="">Seleccionar Tonalidad...</option>
+                                <option value="pink">Rosa</option>
+                                <option value="salmon">Salmón</option>
+                                <option value="orange">Naranja</option>
+                                <option value="copper">Cobre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="clarity">Claridad:</label>
+                            <select id="clarity" name="clarity">
+                                <option value="">Seleccionar Claridad...</option>
+                                <option value="clear">Limpio</option>
+                                <option value="slight haze">Ligera Turbidez</option>
+                                <option value="cloudy">Turbio</option>
+                            </select>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div id="nose" class="tab-pane">
+                    <fieldset>
+                        <legend>Evaluación Olfativa</legend>
+                        <div class="form-group">
+                            <label for="aromaIntensity">Intensidad Aromática:</label>
+                            <select id="aromaIntensity" name="aromaIntensity">
+                                <option value="">Seleccionar Intensidad...</option>
+                                <option value="low">Baja</option>
+                                <option value="moderate">Media</option>
+                                <option value="aromatic">Pronunciada</option>
+                                <option value="powerful">Potente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="development">Evolución:</label>
+                            <select id="development" name="development">
+                                <option value="">Seleccionar Evolución...</option>
+                                <option value="youthful">Joven</option>
+                                <option value="some age">Algo Evolucionado</option>
+                                <option value="aged">Evolucionado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="aromas">Aromas:</label>
+                            <textarea id="aromas" name="aromas" placeholder="Describir aromas... Ej: Frutos rojos, vainilla, cuero"></textarea>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div id="palate" class="tab-pane">
+                    <fieldset>
+                        <legend>Evaluación Gustativa</legend>
+                        <div class="form-group">
+                            <label for="drySweet">Seco/Dulce:</label>
+                            <select id="drySweet" name="drySweet">
+                                <option value="">Seleccionar Dulzor...</option>
+                                <option value="bone dry">Extra Seco</option>
+                                <option value="dry">Seco</option>
+                                <option value="off dry">Semi Seco</option>
+                                <option value="medium sweet">Semi Dulce</option>
+                                <option value="sweet">Dulce</option>
+                                <option value="very sweet">Muy Dulce</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="body">Cuerpo:</label>
+                            <select id="body" name="body">
+                                <option value="">Seleccionar Cuerpo...</option>
+                                <option value="very light">Muy Ligero</option>
+                                <option value="light">Ligero</option>
+                                <option value="medium">Medio</option>
+                                <option value="medium-full">Medio-Pleno</option>
+                                <option value="full-bodied">Pleno</option>
+                                <option value="heavy">Pesado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="acidity">Acidez:</label>
+                            <select id="acidity" name="acidity">
+                                <option value="">Seleccionar Acidez...</option>
+                                <option value="tart">Ácida</option>
+                                <option value="crisp">Vivaz</option>
+                                <option value="fresh">Fresca</option>
+                                <option value="smooth">Suave</option>
+                                <option value="flabby">Plana</option>
+                            </select>
+                        </div>
+                        <fieldset>
+                            <legend>Taninos (Si los hay)</legend>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="tanninLevel">Nivel:</label>
+                                    <select id="tanninLevel" name="tanninLevel">
+                                        <option value="">Seleccionar Nivel...</option>
+                                        <option value="low">Bajo</option>
+                                        <option value="medium">Medio</option>
+                                        <option value="high">Alto</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tanninType">Tipo:</label>
+                                    <select id="tanninType" name="tanninType">
+                                        <option value="">Seleccionar Tipo...</option>
+                                        <option value="soft">Suaves</option>
+                                        <option value="round">Redondos</option>
+                                        <option value="dry">Secos</option>
+                                        <option value="hard">Duros</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            <label for="balance">Equilibrio:</label>
+                            <select id="balance" name="balance">
+                                <option value="">Seleccionar Equilibrio...</option>
+                                <option value="good">Bueno</option>
+                                <option value="fair">Aceptable</option>
+                                <option value="unbalanced">Desequilibrado (exceso: alcohol - ácido - tanino - azúcar)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="flavorIntensity">Intensidad de Sabor:</label>
+                            <select id="flavorIntensity" name="flavorIntensity">
+                                <option value="">Seleccionar Intensidad...</option>
+                                <option value="low">Baja</option>
+                                <option value="moderate">Media</option>
+                                <option value="flavorful">Sabrosa</option>
+                                <option value="powerful">Potente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="flavors">Sabores:</label>
+                            <textarea id="flavors" name="flavors" placeholder="Describir sabores... Ej: Cereza, chocolate amargo"></textarea>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div id="finish" class="tab-pane">
+                     <fieldset>
+                        <legend>Evaluación del Final</legend>
+                        <div class="form-group">
+                            <label for="finishLength">Longitud:</label> <!-- Changed ID to finishLength for clarity -->
+                            <select id="finishLength" name="finishLength"> <!-- Changed name to finishLength -->
+                                <option value="">Seleccionar Longitud del Final...</option>
+                                <option value="short (< 3 sec)">Corto (< 3 seg)</option>
+                                <option value="medium (4-5 sec)">Medio (4-5 seg)</option>
+                                <option value="long (5-7 sec)">Largo (5-7 seg)</option>
+                                <option value="v. long (>8 sec)">Muy Largo (>8 seg)</option>
+                            </select>
+                        </div>
+                          <div class="form-group">
+                            <label for="finishNotes">Notas del Final:</label>
+                            <textarea id="finishNotes" name="finishNotes" placeholder="Describir notas persistentes..."></textarea>
+                        </div>
+                    </fieldset>
+                </div>
+            </div> <!-- End Tab Content -->
+
+
+            <div class="button-container">
+                <button type="button" id="saveTastingBtn">Guardar Cata</button>
+                <button type="reset" id="clearFormBtn">Limpiar Formulario</button>
+            </div>
+        </form>
+
+        <div id="jsonDataOutputContainer" class="hidden">
+            <h2>Datos Recopilados (JSON):</h2>
+            <pre id="jsonDataOutput"></pre>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tab functionality
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Deactivate all tabs and panes
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
+
+                    // Activate clicked tab and corresponding pane
+                    button.classList.add('active');
+                    const tabId = button.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // Wine hue functionality (existing code)
+            const wineTypeSelect = document.getElementById('wineType');
+            const colorHueWhiteGroup = document.getElementById('colorHueWhiteGroup');
+            const colorHueRedGroup = document.getElementById('colorHueRedGroup');
+            const colorHueRoseGroup = document.getElementById('colorHueRoseGroup');
+            const colorHueWhiteSelect = document.getElementById('colorHueWhite');
+            const colorHueRedSelect = document.getElementById('colorHueRed');
+            const colorHueRoseSelect = document.getElementById('colorHueRose');
+
+            if (wineTypeSelect) { // Check if element exists, as it's inside a tab
+                wineTypeSelect.addEventListener('change', function () {
+                    colorHueWhiteGroup.classList.add('hidden');
+                    colorHueRedGroup.classList.add('hidden');
+                    colorHueRoseGroup.classList.add('hidden');
+                    
+                    colorHueWhiteSelect.value = '';
+                    colorHueRedSelect.value = '';
+                    colorHueRoseSelect.value = '';
+
+                    if (this.value === 'white') {
+                        colorHueWhiteGroup.classList.remove('hidden');
+                    } else if (this.value === 'red') {
+                        colorHueRedGroup.classList.remove('hidden');
+                    } else if (this.value === 'rose') {
+                        colorHueRoseGroup.classList.remove('hidden');
+                    }
+                });
+            }
+
+
+            // Form submission (existing code, with one modification for finish)
+            const saveTastingBtn = document.getElementById('saveTastingBtn');
+            const wineTastingForm = document.getElementById('wineTastingForm');
+            const jsonDataOutput = document.getElementById('jsonDataOutput');
+            const jsonDataOutputContainer = document.getElementById('jsonDataOutputContainer');
+            const clearFormBtn = document.getElementById('clearFormBtn');
+
+            saveTastingBtn.addEventListener('click', function () {
+                const formData = new FormData(wineTastingForm);
+                const data = {};
+
+                // Basic details
+                data.tastingDate = formData.get('tastingDate');
+                data.location = formData.get('location');
+                data.tastingPartners = formData.get('tastingPartners');
+                data.wineName = formData.get('wineName');
+                data.producer = formData.get('producer');
+                data.regionAppellation = formData.get('regionAppellation');
+                data.grapeVarieties = formData.get('grapeVarieties');
+                data.vintage = formData.get('vintage');
+                data.alcohol = formData.get('alcohol');
+                data.price = formData.get('price');
+
+                // Sight
+                data.sight = {
+                    colorDepth: formData.get('colorDepth'),
+                    wineType: formData.get('wineType'),
+                    clarity: formData.get('clarity')
+                };
+                if (data.sight.wineType === 'white') {
+                    data.sight.colorHue = formData.get('colorHueWhite');
+                } else if (data.sight.wineType === 'red') {
+                    data.sight.colorHue = formData.get('colorHueRed');
+                } else if (data.sight.wineType === 'rose') {
+                    data.sight.colorHue = formData.get('colorHueRose');
+                } else {
+                    data.sight.colorHue = '';
+                }
+
+                // Nose
+                data.nose = {
+                    aromaIntensity: formData.get('aromaIntensity'),
+                    development: formData.get('development'),
+                    aromas: formData.get('aromas')
+                };
+
+                // Palate
+                data.palate = {
+                    drySweet: formData.get('drySweet'),
+                    body: formData.get('body'),
+                    acidity: formData.get('acidity'),
+                    tannins: {
+                        level: formData.get('tanninLevel'),
+                        type: formData.get('tanninType')
+                    },
+                    balance: formData.get('balance'),
+                    flavorIntensity: formData.get('flavorIntensity'),
+                    flavors: formData.get('flavors')
+                };
+
+                // Finish
+                data.finish = {
+                    length: formData.get('finishLength'), // Changed from 'finish' to 'finishLength'
+                    notes: formData.get('finishNotes')   // Added notes for finish
+                };
+                
+                jsonDataOutput.textContent = JSON.stringify(data, null, 2);
+                jsonDataOutputContainer.classList.remove('hidden');
+            });
+
+            clearFormBtn.addEventListener('click', function() {
+                wineTastingForm.reset(); 
+                
+                if (colorHueWhiteGroup) { // Check if elements exist
+                    colorHueWhiteGroup.classList.add('hidden');
+                    colorHueRedGroup.classList.add('hidden');
+                    colorHueRoseGroup.classList.add('hidden');
+                    wineTypeSelect.value = '';
+                }
+
+                jsonDataOutput.textContent = '';
+                jsonDataOutputContainer.classList.add('hidden');
+
+                // Reset tabs to the first one
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                if (tabButtons.length > 0) {
+                    tabButtons[0].classList.add('active');
+                    document.getElementById(tabButtons[0].getAttribute('data-tab')).classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
