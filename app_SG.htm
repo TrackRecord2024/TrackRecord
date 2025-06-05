@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Evaluación de Taller</title>
+    <style>
+        /* --- Importación de Fuente Moderna --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /* --- Variables de CSS para un Estilo Fácil de Modificar --- */
+        :root {
+            --primary-color: #005A9C; /* Azul corporativo */
+            --secondary-color: #003F6C;
+            --accent-color: #00BFFF; /* Azul brillante para acentos */
+            --background-color: #f4f7f9;
+            --surface-color: #ffffff;
+            --text-color: #333333;
+            --subtle-text-color: #666666;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --border-radius: 8px;
+        }
+
+        /* --- Reset y Estilos Base --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        /* --- Contenedor Principal --- */
+        .form-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--surface-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        /* --- Cabecera del Formulario --- */
+        .form-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            border-bottom: 5px solid var(--accent-color);
+        }
+
+        .form-header h1 {
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .header-fields .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-fields label {
+            font-size: 0.9em;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .header-fields input {
+            padding: 0.7rem;
+            border: 1px solid var(--secondary-color);
+            border-radius: 5px;
+            background-color: var(--secondary-color);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        .header-fields input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .header-fields input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        /* --- Navegación por Pestañas --- */
+        .tabs-nav {
+            overflow-x: auto;
+            white-space: nowrap;
+            background-color: #fff;
+            border-bottom: 1px solid var(--border-color);
+            -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+        }
+        
+        .tabs-nav::-webkit-scrollbar {
+            height: 5px;
+        }
+
+        .tabs-nav::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 10px;
+        }
+        
+        .tabs-nav ul {
+            list-style: none;
+            display: inline-flex;
+            min-width: 100%;
+        }
+
+        .tabs-nav a {
+            display: block;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            color: var(--subtle-text-color);
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            top: 1px;
+        }
+
+        .tabs-nav a:hover {
+            color: var(--primary-color);
+            background-color: #f9f9f9;
+        }
+
+        .tabs-nav a.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* --- Contenido de las Pestañas --- */
+        .tabs-content {
+            padding: 2rem;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-pane h2 {
+            font-size: 1.8em;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        /* --- Estilo de las Tablas de Evaluación --- */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* Evita que la tabla se comprima demasiado en móvil */
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        thead {
+            background-color: #f8f9fa;
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--primary-color);
+            white-space: nowrap;
+        }
+
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        td:nth-child(1) { font-weight: 500; }
+        td p {
+            font-size: 0.9em;
+            color: var(--subtle-text-color);
+            max-width: 400px;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95em;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            min-width: 150px;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 90, 156, 0.25);
+        }
+
+        /* --- Sección de Observaciones y Botón Final --- */
+        .final-section {
+            padding: 2rem;
+            background-color: #f8f9fa;
+        }
+
+        .final-section h2 {
+             font-size: 1.8em;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1em;
+            resize: vertical;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 90, 156, 0.25);
+        }
+
+        .form-footer {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .signature {
+            margin-bottom: 2rem;
+            color: var(--subtle-text-color);
+            border-top: 1px dashed var(--border-color);
+            padding-top: 1.5rem;
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 2.5rem;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 90, 156, 0.3);
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+            box-shadow: 0 6px 15px rgba(0, 90, 156, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* --- Media Queries para Responsividad --- */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .form-header, .tabs-content, .final-section, .form-footer {
+                padding: 1.5rem;
+            }
+
+            .header-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs-nav a {
+                padding: 0.8rem 1rem;
+            }
+            
+            .signature {
+                width: 80%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="app" class="form-container">
+        <!-- El contenido del formulario se generará aquí con JavaScript -->
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // --- DATOS DEL FORMULARIO EN FORMATO JSON ---
+        // Modificar este objeto es la forma más fácil de cambiar el formulario.
+        const formData = {
+            opciones: {
+                valoracion: ["No Aplica", "Logrado", "En Proceso", "A Desarrollar", "Con Apoyo"],
+                nivelApoyo: ["No Requiere", "Mínimo (Verbal)", "Parcial (Físico/Verbal)", "Total (Asistencia Completa)"]
+            },
+            evaluacionGeneral: {
+                titulo: "Evaluación General",
+                id: "eval-general",
+                columnas: ["Área", "Descripción", "Valoración", "Nivel de Apoyo"],
+                filas: [
+                    { area: "Interés y motivación", descripcion: "Se evalúa si el concurrente muestra interés antes, durante y después del taller. Así como también si solicita la participación activa." },
+                    { area: "Independencia y Autonomía", descripcion: "Capacidad del concurrente para realizar las tareas propuestas sin ayuda, con ayuda parcial o con asistencia total. Se observan progresos en la independencia funcional dentro del taller." },
+                    { area: "Interacción social", descripcion: "Forma en la que se relaciona con compañeros y profesionales. Incluye aspectos como cooperación, respetar turnos, resolución de problemas y empatía." },
+                    { area: "Comunicación y expresión", descripcion: "Capacidad para expresar ideas, emociones, necesidades y opiniones dentro del espacio del taller, ya sea de manera verbal o no verbal." },
+                    { area: "Tolerancia a la frustración", descripcion: "Capacidad para enfrentar errores, límites o situaciones que no salen como esperaban." }
+                ]
+            },
+            talleres: [
+                {
+                    nombre: "Musicoterapia",
+                    id: "musicoterapia",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Favorecer las respuestas a estímulos sonoros" },
+                        { criterio: "Fomentar la exploración de instrumentos" },
+                        { criterio: "Favorecer la expresión emocional" }
+                    ]
+                },
+                {
+                    nombre: "Sensorio-motor",
+                    id: "sensorio-motor",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Mejorar calidad de vida" },
+                        { criterio: "Fomentar la capacidad sensoriales y motores" },
+                        { criterio: "Mejorar la asimilación y comprensión del mundo que los rodea" },
+                        { criterio: "Estimular el autocontrol y conductas sociales" }
+                    ]
+                },
+                {
+                    nombre: "Actividades de la vida diaria",
+                    id: "avd",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Favorecer hábitos de autocuidado y desempeño personal" },
+                        { criterio: "Rutinas de higiene personal" },
+                        { criterio: "Autonomía" }
+                    ]
+                },
+                {
+                    nombre: "Psicomotricidad",
+                    id: "psicomotricidad",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Favorecer la conciencia del cuerpo y sus movimientos" },
+                        { criterio: "Favorecer la coordinación y relajación" },
+                        { criterio: "Favorecer el traslado de manera autónoma" }
+                    ]
+                },
+                {
+                    nombre: "Huerta",
+                    id: "huerta",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Favorecer el contacto con la naturaleza" },
+                        { criterio: "Favorecer cuidado de plantas" },
+                        { criterio: "Fomentar el trabajo en equipo" }
+                    ]
+                },
+                {
+                    nombre: "Títeres",
+                    id: "titeres",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Favorecer la creatividad y expresión" },
+                        { criterio: "Mejorar el lenguaje y comunicación" },
+                        { criterio: "Favorecer el trabajo grupal" }
+                    ]
+                },
+                {
+                    nombre: "Cocina saludable",
+                    id: "cocina",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Favorecer la manipulación de utensilios" },
+                        { criterio: "Fomentar el seguimiento de recetas" },
+                        { criterio: "Incrementar los hábitos saludables" },
+                        { criterio: "Favorecer el trabajo en grupo" }
+                    ]
+                },
+                {
+                    nombre: "Habilidades sociales",
+                    id: "habilidades-sociales",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Fortalecer las habilidades básicas e instrumentales" },
+                        { criterio: "Promover el respeto y empatía" },
+                        { criterio: "Favorecer habilidades de escucha" },
+                        { criterio: "Fomentar la toma de decisiones" }
+                    ]
+                },
+                {
+                    nombre: "Bijouterie",
+                    id: "bijouterie",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Incrementar la Motricidad fina" },
+                        { criterio: "Favorece la secuencia de pasos y diseños" },
+                        { criterio: "Favorecer la creatividad" }
+                    ]
+                },
+                {
+                    nombre: "Autogestión",
+                    id: "autogestion",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Estimular la autonomía e independencia personal" },
+                        { criterio: "Fomentar la colaboración y la corresponsabilidad" },
+                        { criterio: "Favorecer la capacidad crítica" },
+                        { criterio: "Favorecer la planificación, organización y disciplina" },
+                        { criterio: "Favorecer hábitos saludables" }
+                    ]
+                },
+                {
+                    nombre: "Educación física",
+                    id: "ed-fisica",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Mejorar la condición física general" },
+                        { criterio: "Promover la práctica de actividades físicas" },
+                        { criterio: "Fomentar el juego limpio y normas" },
+                        { criterio: "Estimular el desarrollo del equilibrio" },
+                        { criterio: "Fomentar el autocuidado personal" }
+                    ]
+                },
+                {
+                    nombre: "Expresión artística",
+                    id: "exp-artistica",
+                    columnas: ["Criterio", "Valoración", "Nivel de Apoyo"],
+                    criterios: [
+                        { criterio: "Estimular la imaginación y la creatividad" },
+                        { criterio: "Fomentar la expresión de emociones" },
+                        { criterio: "Potenciar la toma de decisiones" },
+                        { criterio: "Desarrollar habilidades de comunicación a través del arte" }
+                    ]
+                }
+            ]
+        };
+
+        const appContainer = document.getElementById('app');
+
+        // --- FUNCIONES PARA GENERAR HTML ---
+
+        function createSelect(options, name, dataId) {
+            const select = document.createElement('select');
+            select.name = name;
+            select.dataset.id = dataId;
+            options.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt;
+                option.textContent = opt;
+                select.appendChild(option);
+            });
+            return select.outerHTML;
+        }
+
+        function buildForm() {
+            let html = `
+                <header class="form-header">
+                    <h1>INSTITUTO SAN GABRIEL</h1>
+                    <h1>Formulario de Evaluación</h1>
+                    <div class="header-fields">
+                        <div class="input-group">
+                            <label for="taller">Taller:</label>
+                            <input type="text" id="taller" name="taller" placeholder="Ej: Taller de Arte">
+                        </div>
+                        <div class="input-group">
+                            <label for="nombre_concurrente">Nombre del concurrente:</label>
+                            <input type="text" id="nombre_concurrente" name="nombre_concurrente" placeholder="Nombre y Apellido">
+                        </div>
+                        <div class="input-group">
+                            <label for="periodo_evaluacion">Periodo de evaluación:</label>
+                            <input type="text" id="periodo_evaluacion" name="periodo_evaluacion" placeholder="Ej: Marzo 2025">
+                        </div>
+                        <div class="input-group">
+                            <label for="profesional_responsable">Profesional responsable:</label>
+                            <input type="text" id="profesional_responsable" name="profesional_responsable" placeholder="Nombre del Profesional">
+                        </div>
+                    </div>
+                </header>
+
+                <nav class="tabs-nav">
+                    <ul>
+                        <li><a href="#${formData.evaluacionGeneral.id}" class="active">${formData.evaluacionGeneral.titulo}</a></li>
+                        ${formData.talleres.map(taller => `<li><a href="#${taller.id}">${taller.nombre}</a></li>`).join('')}
+                    </ul>
+                </nav>
+
+                <main class="tabs-content">
+                    <!-- Tab de Evaluación General -->
+                    <div id="${formData.evaluacionGeneral.id}" class="tab-pane active">
+                        <h2>${formData.evaluacionGeneral.titulo}</h2>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>${formData.evaluacionGeneral.columnas.map(col => `<th>${col}</th>`).join('')}</tr>
+                                </thead>
+                                <tbody>
+                                    ${formData.evaluacionGeneral.filas.map((fila, index) => `
+                                        <tr>
+                                            <td>${fila.area}</td>
+                                            <td><p>${fila.descripcion}</p></td>
+                                            <td>${createSelect(formData.opciones.valoracion, `valoracion_general_${index}`, `general-valoracion-${index}`)}</td>
+                                            <td>${createSelect(formData.opciones.nivelApoyo, `apoyo_general_${index}`, `general-apoyo-${index}`)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tabs de Talleres -->
+                    ${formData.talleres.map(taller => `
+                        <div id="${taller.id}" class="tab-pane">
+                            <h2>Taller de ${taller.nombre}</h2>
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>${taller.columnas.map(col => `<th>${col}</th>`).join('')}</tr>
+                                    </thead>
+                                    <tbody>
+                                        ${taller.criterios.map((criterio, index) => `
+                                            <tr>
+                                                <td>${criterio.criterio}</td>
+                                                <td>${createSelect(formData.opciones.valoracion, `valoracion_${taller.id}_${index}`, `${taller.id}-valoracion-${index}`)}</td>
+                                                <td>${createSelect(formData.opciones.nivelApoyo, `apoyo_${taller.id}_${index}`, `${taller.id}-apoyo-${index}`)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `).join('')}
+                </main>
+                
+                <section class="final-section">
+                    <h2>Observaciones Generales</h2>
+                    <textarea id="observaciones" placeholder="Espacio para registrar aspectos relevantes del proceso, fortalezas, dificultades, necesidades de apoyo, propuestas de adaptaciones, etc."></textarea>
+                </section>
+
+                <footer class="form-footer">
+                    <p class="signature">Firma del Profesional Responsable</p>
+                    <button type="button" class="submit-btn" id="save-button">Guardar Evaluación</button>
+                </footer>
+            `;
+            appContainer.innerHTML = html;
+        }
+
+        // --- LÓGICA DE INTERACCIÓN ---
+
+        function setupTabs() {
+            const tabLinks = document.querySelectorAll('.tabs-nav a');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    tabLinks.forEach(l => l.classList.remove('active'));
+                    tabPanes.forEach(p => p.classList.remove('active'));
+
+                    link.classList.add('active');
+                    const targetPane = document.querySelector(link.getAttribute('href'));
+                    if (targetPane) {
+                        targetPane.classList.add('active');
+                    }
+                });
+            });
+        }
+        
+        function setupSaveButton() {
+            const saveButton = document.getElementById('save-button');
+            saveButton.addEventListener('click', () => {
+                const result = {
+                    infoGeneral: {
+                        taller: document.getElementById('taller').value,
+                        nombreConcurrente: document.getElementById('nombre_concurrente').value,
+                        periodo: document.getElementById('periodo_evaluacion').value,
+                        profesional: document.getElementById('profesional_responsable').value,
+                    },
+                    evaluacionGeneral: [],
+                    evaluacionTalleres: {},
+                    observaciones: document.getElementById('observaciones').value,
+                };
+                
+                // Recopilar datos de evaluación general
+                formData.evaluacionGeneral.filas.forEach((fila, index) => {
+                    result.evaluacionGeneral.push({
+                        area: fila.area,
+                        valoracion: document.querySelector(`[data-id='general-valoracion-${index}']`).value,
+                        nivelApoyo: document.querySelector(`[data-id='general-apoyo-${index}']`).value,
+                    });
+                });
+
+                // Recopilar datos de talleres
+                formData.talleres.forEach(taller => {
+                    result.evaluacionTalleres[taller.nombre] = [];
+                    taller.criterios.forEach((criterio, index) => {
+                        result.evaluacionTalleres[taller.nombre].push({
+                            criterio: criterio.criterio,
+                            valoracion: document.querySelector(`[data-id='${taller.id}-valoracion-${index}']`).value,
+                            nivelApoyo: document.querySelector(`[data-id='${taller.id}-apoyo-${index}']`).value,
+                        });
+                    });
+                });
+                
+                console.log("--- DATOS DEL FORMULARIO RECOPILADOS ---");
+                console.log(JSON.stringify(result, null, 2));
+                alert("Los datos de la evaluación han sido recopilados. Revisa la consola del navegador (F12) para ver el objeto JSON.");
+            });
+        }
+
+        // --- INICIALIZACIÓN ---
+        buildForm();
+        setupTabs();
+        setupSaveButton();
+    });
+    </script>
+</body>
+</html>
